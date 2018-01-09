@@ -1,0 +1,111 @@
+{% extends "dashboard_base.html" %}
+{% block dashcontent %}
+<style>
+.readoutarea {
+  padding: 10px 0;
+  -webkit-columns: 250px 3;
+  -moz-columns: 250px 3;
+  columns: 250px 3;
+  -webkit-column-gap: 15px;
+  -moz-column-gap: 15px;
+  column-gap: 15px;
+  max-width: 80vw;
+  margin: auto;
+  display: block;
+  -moz-column-fill: balance;
+  column-fill: balance;
+}
+
+.child {
+  margin: 10px;
+  height: 300px;
+  display: block;
+  position: relative;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 3px;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid-column;
+}
+
+
+</style>
+<div class="dashWrap" style="height:auto" >
+
+                <div id="readouts" class="readoutarea">
+                    
+                        {% for station in stations -%}
+                        {% if station["_id"] != 'all' -%}
+                        
+                        <div class="stationtile child " data-stationid="{{station['_id']}}">
+                            <div class="measName">{{station['stationname']}}</div>
+                            <div class="multitileMeasItem readout" data-meastype="mtTemp1">
+                                <span class="measName c1_mt">Temperature</span>
+                                <span class="value measVal c2_m2">34</span>
+                                <span class="measUnit">&deg;F</span>
+                            </div>
+                            <div class="multitileMeasItem readout" data-meastype="mtAdjBaromPress">
+                                <span class="measName c1_mt">Barometric Pressure</span>
+                                <span class="value measVal c2_m2">34</span>
+                                <span class="measUnit">&deg;F</span>
+                            </div>
+                            <div class="multitileMeasItem readout" data-meastype="mtRelHumidity">
+                                <span class="measName c1_mt">Humidity</span>
+                                <span class="value measVal c2_m2">34</span>
+                                <span class="measUnit">&deg;F</span>
+                            </div>
+                            <div class="updatedat">
+                                <span class="updatedtime">Updated at:</span>
+                            </div>
+
+                        </div>
+                        
+
+                        {% endif %}
+                        {% endfor -%}
+                    
+                <div class="footertheme2 desk">
+                    <footer class="footertheme2">
+                        <p></p>
+                    </footer>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+{% block dynamic_tile_gen %}
+   <script type="text/javascript" src="/nreadouts_sse.js"></script>
+  <script type="text/javascript" src="/measurements.js"></script>
+
+    
+<script type="text/javascript">
+
+    var initReadouts;
+    function main (err) {
+        var stations = [];
+        {% for station in stations -%}
+            {% if station["_id"] != 'all' -%}
+                stations.push('{{station["_id"]}}');
+            {% endif %}
+        {% endfor -%}
+        nreadoutsInit(stations);
+        var custmeas = {};
+        custmeas.Value = 'default';
+        custmeas.Update = function (rawValue, displayUnits) {
+            this.Value = "Custom_" + rawValue;
+        };
+        currentValues.AddCustomMeasurement("testKey", custmeas);
+
+
+    }
+    var queryDict = {};
+    location.search.substr(1).split("&").forEach(function(item) { queryDict[item.split("=")[0]] = item.split("=")[1] });
+    var durl = queryDict['durl'];
+    //dataurl = durl;
+    if (typeof durl === 'undefined') {
+        durl = "/RTsubscribe/";
+    }
+
+</script>
+{% endblock %}
